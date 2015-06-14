@@ -10,7 +10,7 @@ eval (Add xs) = sum xs
 tests = TestList
     [ "eval 1" ~: eval (Add [1, 1]) ~?= 1+1
     , "eval 2" ~: eval (Add [2, 3]) ~?= 2+3
-    , "eval 3" ~: eval (Add [2, 3, 3]) ~?= 2+3+3
+    , "eval 3" ~: eval (Add [5, -3]) ~?= 5-3
     ]
 
 main = do
