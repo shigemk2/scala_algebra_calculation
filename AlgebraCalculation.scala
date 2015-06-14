@@ -7,3 +7,4 @@ def add(a: Add): Int =
 println(add(new Add(1,2)) == 3)
 println(add(new Add(2,3)) == 5)
 println(add(new Add(2,3,3)) == 8)
+println(add(new Add(5,-3)) == 2)
