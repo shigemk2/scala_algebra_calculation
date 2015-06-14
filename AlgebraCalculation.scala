@@ -1,8 +1,9 @@
 sealed trait Algebra
-case class Add(x: Int, y: Int) extends Algebra
+case class Add(n: Int*) extends Algebra
 
 def add(a: Add): Int =
-  a.x + a.y
+  a.n.sum
 
 println(add(new Add(1,2)) == 3)
 println(add(new Add(2,3)) == 5)
+println(add(new Add(2,3,3)) == 8)
