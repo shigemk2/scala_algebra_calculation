@@ -1,15 +1,20 @@
 sealed trait Algebra
-case class Add(n: Int*) extends Algebra
-case class Mul(n: Int*) extends Algebra
+case class N(n: Int) extends Algebra
+case class Add(n: N*) extends Algebra
+case class Mul(n: N*) extends Algebra
 
-def eval(a: Add): Int =
-  a.n.sum
+def eval(x: N): Int =
+  x.n
 
-def eval(a: Mul): Int =
-  a.n.product
+def eval(xs: Add): Int =
+  xs.n.map(x => eval(x)).sum
 
-println(eval(new Add(1,2)) == 3)
-println(eval(new Add(2,3)) == 5)
-println(eval(new Add(2,3,3)) == 8)
-println(eval(new Add(5,-3)) == 2)
-println(eval(new Mul(3,4)) == 12)
+def eval(xs: Mul): Int =
+  xs.n.map(x => eval(x)).product
+
+println(eval(Add(N(1),N(2))) == 1+2)
+println(eval(Add(N(2),N(3))) == 2+3)
+println(eval(Add(N(2),N(3),N(3))) == 2*3*3)
+println(eval(Add(N(5),N(-3))) == 5-3)
+println(eval(Mul(N(3),N(4))) == 3*4)
+println(eval(Mul(Add(N(1),N(2)),N(3))) == (1+2)*3)
