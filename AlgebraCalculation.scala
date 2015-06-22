@@ -1,15 +1,15 @@
-sealed trait Algebra[+A]
-case class N[A](n: A) extends Algebra[A]
-case class Add[A](n: A*) extends Algebra[A]
-case class Mul[A](n: A*) extends Algebra[A]
+sealed trait Expr
+case class N(n: Int) extends Expr
+case class Add(n: N*) extends Expr
+case class Mul(n: N*) extends Expr
 
-def eval(x: N[Int]): Int =
+def eval(x: N): Int =
   x.n
 
-def eval(xs: Add[N[Int]]): Int =
+def eval(xs: Add): Int =
   xs.n.map(x => eval(x)).sum
 
-def eval(xs: Mul[N[Int]]): Int =
+def eval(xs: Mul): Int =
   xs.n.map(x => eval(x)).product
 
 println(eval(Add(N(1),N(2))))
