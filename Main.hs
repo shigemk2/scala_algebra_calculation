@@ -6,7 +6,7 @@ import System.IO
 data Expr = N Int
           | Add [Expr]
           | Mul [Expr]
-          deriving Show
+          deriving (Show, Eq)
 
 eval (N   x ) = x
 eval (Add xs) = sum     [eval x | x <- xs]
@@ -42,6 +42,7 @@ tests = TestList
     , "str 5" ~: str (Add[Add[N 1,N 2],N 3]) ~?= "(1+2)+3"
     , "str 6" ~: str (Mul[Add[N 1,N 2],N 3]) ~?= "(1+2)*3"
     , "str 7" ~: str (Mul[Mul[N 1,N 2],N 3]) ~?= "(1*2)*3"
+    , "equal" ~: Add[N 1,N 2] ~?= Add[N 1,N 2]
     ]
 
 main = do
