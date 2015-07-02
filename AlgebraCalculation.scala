@@ -12,13 +12,16 @@ def eval(e: Expr): Int = e match {
 def str(e: Expr): String = e match {
   case N(x)             => x.toString
   case Add()            => ""
+  case Add(Add(xs@_*))  => "(" ++ str(Add(xs: _*)) ++ ")"
   case Add(x)           => str(x)
   case Add(x, xs@_*)
-      if isneg(xs.head) => str(x) ++ str(Add(xs: _*))
-  case Add(x, xs@_*)    => str(x) ++ "+" ++ str(Add(xs: _*))
+      if isneg(xs.head) => str(Add(x)) ++ str(Add(xs: _*))
+  case Add(x, xs@_*)    => str(Add(x)) ++ "+" ++ str(Add(xs: _*))
   case Mul()            => ""
+  case Mul(Add(xs@_*))  => "(" ++ str(Add(xs: _*)) ++ ")"
+  case Mul(Mul(xs@_*))  => "(" ++ str(Mul(xs: _*)) ++ ")"
   case Mul(x)           => str(x)
-  case Mul(x, xs@_*)    => str(x) ++ "*" ++ str(Mul(xs: _*))
+  case Mul(x, xs@_*)    => str(Mul(x)) ++ "*" ++ str(Mul(xs: _*))
 }
 
 def isneg(e: Expr): Boolean = e match {
@@ -37,7 +40,7 @@ println(str(Add(N(1),N(-2),N(-3))) == "1-2-3")
 println(str(Mul(N(1),N(2),N(3))) == "1*2*3")
 println(str(Add(N(1),Mul(N(2),N(3)))) == "1+2*3")
 println(str(Mul(N(1),N(2),N(3))) == "1*2*3")
-println(str(Add(Add(N(1),N(2)),N(3)))) // == "(1+2)+3")
-println(str(Mul(Add(N(1),N(2)),N(3)))) // == "(1+2)*3")
-println(str(Mul(Mul(N(1),N(2)),N(3)))) // == "(1*2)*3")
+println(str(Add(Add(N(1),N(2)),N(3))) == "(1+2)+3")
+println(str(Mul(Add(N(1),N(2)),N(3))) == "(1+2)*3")
+println(str(Mul(Mul(N(1),N(2)),N(3))) == "(1*2)*3")
 
