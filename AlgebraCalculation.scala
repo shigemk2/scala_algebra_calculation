@@ -43,4 +43,5 @@ println(str(Mul(N(1),N(2),N(3))) == "1*2*3")
 println(str(Add(Add(N(1),N(2)),N(3))) == "(1+2)+3")
 println(str(Mul(Add(N(1),N(2)),N(3))) == "(1+2)*3")
 println(str(Mul(Mul(N(1),N(2)),N(3))) == "(1*2)*3")
+println(Add(N(1),N(2)) == Add(N(1),N(2)))
 
