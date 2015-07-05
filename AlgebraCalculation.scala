@@ -1,11 +1,11 @@
 sealed trait Expr
 case class N(n: Int) extends Expr
-case class Var(x: String, n: Int) extends Expr
+case class Var(x: String, a: Int, n: Int) extends Expr
 case class Add(n: Expr*) extends Expr
 case class Mul(n: Expr*) extends Expr
 
-def x(n: Int): Var = {
-  Var("x", n)
+def x(a: Int, n: Int): Var = {
+  Var("x", a, n)
 }
 
 def eval(e: Expr): Int = (e: @unchecked) match {
@@ -16,8 +16,10 @@ def eval(e: Expr): Int = (e: @unchecked) match {
 
 def str(e: Expr): String = e match {
   case N(x)             => x.toString
-  case Var(x, 1)        => x
-  case Var(x, n)        => x ++ "^" ++ n.toString
+  case Var(x, 1, 1)     => x
+  case Var(x, -1, 1)    => "-" ++ x
+  case Var(x, a, 1)     => a.toString ++ x
+  case Var(x, a, n)     => str(Var(x, a, 1)) ++ "^" ++ n.toString
   case Add()            => ""
   case Add(Add(xs@_*))  => "(" ++ str(Add(xs: _*)) ++ ")"
   case Add(x)           => str(x)
@@ -33,6 +35,7 @@ def str(e: Expr): String = e match {
 
 def isneg(e: Expr): Boolean = e match {
   case N(n) if n < 0 => true
+  case Var(_, a, _) if a < 0 => true
   case _          => false
 }
 
@@ -51,5 +54,5 @@ println(str(Add(Add(N(1),N(2)),N(3))) == "(1+2)+3")
 println(str(Mul(Add(N(1),N(2)),N(3))) == "(1+2)*3")
 println(str(Mul(Mul(N(1),N(2)),N(3))) == "(1*2)*3")
 println(Add(N(1),N(2)) == Add(N(1),N(2)))
-println(str(Add(x(1),N(1))) == "x+1")
-println(str(Add(x(2),x(1),N(1))) == "x^2+x+1")
+println(str(Add(x(1,1),N(1))) == "x+1")
+println(str(Add(x(1,3),x(-1,2),x(-2,1),N(1))) == "x^3-x^2-2x+1")
