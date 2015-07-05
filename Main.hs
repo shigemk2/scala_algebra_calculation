@@ -4,10 +4,12 @@ import Test.HUnit
 import System.IO
 
 data Expr = N   Int
-          | Var String
+          | Var String Int
           | Add [Expr]
           | Mul [Expr]
           deriving (Show, Eq)
+
+x n = Var "x" n
 
 eval (N   x ) = x
 eval (Add xs) = sum     [eval x | x <- xs]
@@ -17,7 +19,8 @@ isneg (N n) | n < 0 = True
 isneg _             = False
 
 str (N x) = show x
-str (Var name) = name
+str (Var x 1) = x
+str (Var x n) = x ++ "^" ++ show n
 str (Add [])       = ""
 str (Add [Add xs]) = "(" ++ str (Add xs) ++ ")"
 str (Add [x])      = str x
@@ -45,7 +48,8 @@ tests = TestList
     , "str 6" ~: str (Mul[Add[N 1,N 2],N 3]) ~?= "(1+2)*3"
     , "str 7" ~: str (Mul[Mul[N 1,N 2],N 3]) ~?= "(1*2)*3"
     , "equal" ~: Add[N 1,N 2] ~?= Add[N 1,N 2]
-    , "x 1" ~: str (Add [Var "x",N 1]) ~?= "x+1"
+    , "x 1" ~: str (Add [x 1,N 1]) ~?= "x+1"
+    , "x 2" ~: str (Add [x 2,x 1,N 1]) ~?= "x^2+x+1"
     ]
 
 main = do
