@@ -82,6 +82,7 @@ tests = TestList
         let f = Mul[Add[N 5,2`x`1],Add[1`x`1,N 1,1`x`2]]
         in (xsort f)
         ~?= Mul[Add[2`x`1,N 5],Add[1`x`2,1`x`1,N 1]]
+    , "xl 1" ~: xlt (Var "x" 1 2) (Var "x" 2 3) ~?= True
     ]
 
 main = do
