@@ -1,10 +1,14 @@
 sealed trait Expr
 case class N(n: Int) extends Expr
-case class Var(n: String) extends Expr
+case class Var(x: String, n: Int) extends Expr
 case class Add(n: Expr*) extends Expr
 case class Mul(n: Expr*) extends Expr
 
-def eval(e: Expr): Int = e match {
+def x(n: Int): Var = {
+  Var("x", n)
+}
+
+def eval(e: Expr): Int = (e: @unchecked) match {
   case N(x) => x
   case Add(xs @ _*) => xs.map(x => eval(x)).sum
   case Mul(xs @ _*) => xs.map(x => eval(x)).product
@@ -12,7 +16,8 @@ def eval(e: Expr): Int = e match {
 
 def str(e: Expr): String = e match {
   case N(x)             => x.toString
-  case Var(name)        => name
+  case Var(x, 1)        => x
+  case Var(x, n)        => x ++ "^" ++ n.toString
   case Add()            => ""
   case Add(Add(xs@_*))  => "(" ++ str(Add(xs: _*)) ++ ")"
   case Add(x)           => str(x)
@@ -46,5 +51,5 @@ println(str(Add(Add(N(1),N(2)),N(3))) == "(1+2)+3")
 println(str(Mul(Add(N(1),N(2)),N(3))) == "(1+2)*3")
 println(str(Mul(Mul(N(1),N(2)),N(3))) == "(1*2)*3")
 println(Add(N(1),N(2)) == Add(N(1),N(2)))
-println(str(Add(Var("x"),N(1))) == "x+1")
-
+println(str(Add(x(1),N(1))) == "x+1")
+println(str(Add(x(2),x(1),N(1))) == "x^2+x+1")
