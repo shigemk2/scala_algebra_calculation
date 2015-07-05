@@ -78,6 +78,10 @@ tests = TestList
         let f = Mul[Add[N 5,2`x`1],Add[1`x`1,N 1,1`x`2]]
         in (str f, str $ xsort f)
         ~?= ("(5+2x)*(x+1+x^2)", "(2x+5)*(x^2+x+1)")
+    , "xsort 3" ~:
+        let f = Mul[Add[N 5,2`x`1],Add[1`x`1,N 1,1`x`2]]
+        in (xsort f)
+        ~?= Mul[Add[2`x`1,N 5],Add[1`x`2,1`x`1,N 1]]
     ]
 
 main = do
