@@ -39,6 +39,25 @@ def isneg(e: Expr): Boolean = e match {
   case _          => false
 }
 
+def xlt(x: Expr, y: Expr): Boolean = (x,y) match {
+  case (Var("x", _, n1), Var("x", _, n2)) => (n1 < n2)
+  case (Var("x", _, _), _)                => false
+  case (_, Var("x", _, _))                => true
+  case (_, _)                             => true
+}
+
+// def xsort(xs: Expr): Expr = e match {
+//   case Add(x, y, xs@_*)  => {
+//     if (xs.length <= 1) x::y::xs
+//     else {
+//       xsort(xs.filter(xlt(x,y) == false)) ++
+//       xsort(xs.filter(xlt(x,y) == true))
+//     }
+//   }
+//   case Mul(xs@_*)  => xs.map(x => xsort(x))
+//   case xs  => xs
+// }
+
 println(eval(Add(N(1),N(2))) == 1+2)
 println(eval(Add(N(2),N(3))) == 2+3)
 println(eval(Add(N(5),N(-3))) == 5-3)
@@ -58,3 +77,4 @@ println(str(Add(x(1,1),N(1))) == "x+1")
 println(str(Add(x(1,3),x(-1,2),x(-2,1),N(1))) == "x^3-x^2-2x+1")
 println(str(Mul(Add(N(5),x(2,1)),Add(x(1,1),N(1),x(1,2)))) == "(5+2x)*(x+1+x^2)")
 println(str(Mul(Add(x(2,1),N(5)),Add(x(1,2),x(1,1),N(1)))) == "(2x+5)*(x^2+x+1)")
+println(xlt(Var("x",3,3), N(1)))
