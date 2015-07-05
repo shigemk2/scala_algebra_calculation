@@ -36,6 +36,21 @@ str (Mul [Mul xs]) = "(" ++ str (Mul xs) ++ ")"
 str (Mul [x])      = str x
 str (Mul (x:xs))   = str (Mul [x]) ++ "*" ++ str (Mul xs)
 
+xlt (Var "x" _ n1) (Var "x" _ n2) = n1 < n2
+xlt (Var "x" _ _ ) _              = False
+xlt _              (Var "x" _ _ ) = True
+xlt _              _              = True -- ignore
+
+xsort (Add xs) = Add $ f xs
+    where
+        f []     = []
+        f (x:xs) = f xs1 ++ [x] ++ f xs2
+            where
+                xs1 = [xsort x' | x' <- xs, not $ x' `xlt` x]
+                xs2 = [xsort x' | x' <- xs,       x' `xlt` x]
+xsort (Mul xs) = Mul [xsort x | x <- xs]
+xsort x = x
+
 tests = TestList
     [ "eval 1" ~: eval (Add[N 1,N  1 ]) ~?= 1+1
     , "eval 2" ~: eval (Add[N 2,N  3 ]) ~?= 2+3
@@ -53,6 +68,16 @@ tests = TestList
     , "equal" ~: Add[N 1,N 2] ~?= Add[N 1,N 2]
     , "x 1" ~: str (Add [1`x`1,N 1]) ~?= "x+1"
     , "x 2" ~: str (Add [1`x`3,(-1)`x`2,(-2)`x`1,N 1]) ~?= "x^3-x^2-2x+1"
+    , "xlt 1" ~: (1`x`1) `xlt` (1`x`2) ~?= True
+    , "xlt 2" ~: (N 1)   `xlt` (1`x`1) ~?= True
+    , "xsort 1" ~:
+        let f = Add[1`x`1,N 1,1`x`2]
+        in (str f, str $ xsort f)
+        ~?= ("x+1+x^2", "x^2+x+1")
+    , "xsort 2" ~:
+        let f = Mul[Add[N 5,2`x`1],Add[1`x`1,N 1,1`x`2]]
+        in (str f, str $ xsort f)
+        ~?= ("(5+2x)*(x+1+x^2)", "(2x+5)*(x^2+x+1)")
     ]
 
 main = do
