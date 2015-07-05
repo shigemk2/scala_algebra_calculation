@@ -82,6 +82,10 @@ tests = TestList
         let f = Mul[Add[N 5,2`x`1],Add[1`x`1,N 1,1`x`2]]
         in (xsort f)
         ~?= Mul[Add[2`x`1,N 5],Add[1`x`2,1`x`1,N 1]]
+    , "xsort 4" ~:
+        let f = Mul[Add[N 5,2`x`1],Add[1`x`1,N 1,1`x`2,3`x`3]]
+        in (str f, str $ xsort f)
+        ~?= ("(5+2x)*(x+1+x^2+3x^3)", "(2x+5)*(3x^3+x^2+x+1)")
     , "xl 1" ~: xlt (Var "x" 1 2) (Var "x" 2 3) ~?= True
     ]
 
