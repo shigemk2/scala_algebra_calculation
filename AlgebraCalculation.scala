@@ -10,8 +10,8 @@ def x(a: Int, n: Int): Var = {
 
 def eval(e: Expr): Int = (e: @unchecked) match {
   case N(x) => x
-  case Add(xs @ _*) => xs.map(x => eval(x)).sum
-  case Mul(xs @ _*) => xs.map(x => eval(x)).product
+  case Add(xs @_*) => xs.map(x => eval(x)).sum
+  case Mul(xs @_*) => xs.map(x => eval(x)).product
 }
 
 def str(e: Expr): String = e match {
@@ -46,17 +46,32 @@ def xlt(x: Expr, y: Expr): Boolean = (x,y) match {
   case (_, _)                             => true
 }
 
-// def xsort(xs: Expr): Expr = e match {
-//   case Add(x, y, xs@_*)  => {
-//     if (xs.length <= 1) x::y::xs
-//     else {
-//       xsort(xs.filter(xlt(x,y) == false)) ++
-//       xsort(xs.filter(xlt(x,y) == true))
-//     }
-//   }
-//   case Mul(xs@_*)  => xs.map(x => xsort(x))
-//   case xs  => xs
-// }
+
+def qsort(xs: List[Int]): List[Int] = {
+  if (xs.length <= 1) xs
+  else {
+    val pivot = xs(xs.length / 2)
+    qsort(xs.filter(pivot >)) ++
+    xs.filter(pivot ==) ++
+    qsort(xs.filter(pivot <))
+  }
+}
+
+def xsort(xs: Expr): Expr = xs match {
+  case Add(xs@_*)  => {
+    def f(xs: List[Expr]): List[Expr] = xs match {
+      case List() => List()
+      case (x::xs) => {
+        val xs1 = for (x1 <- xs if ! xlt(x1, x)) yield xsort(x1)
+        val xs2 = for (x2 <- xs if xlt(x2, x)) yield xsort(x2)
+        f(xs1) ++ List(x) ++ f(xs2)
+      }
+    }
+    Add(f(xs.toList): _*)
+  }
+  case Mul(xs@_*)  => Mul(xs.map(x => xsort(x)): _*)
+  case xs  => xs
+}
 
 println(eval(Add(N(1),N(2))) == 1+2)
 println(eval(Add(N(2),N(3))) == 2+3)
@@ -75,6 +90,6 @@ println(str(Mul(Mul(N(1),N(2)),N(3))) == "(1*2)*3")
 println(Add(N(1),N(2)) == Add(N(1),N(2)))
 println(str(Add(x(1,1),N(1))) == "x+1")
 println(str(Add(x(1,3),x(-1,2),x(-2,1),N(1))) == "x^3-x^2-2x+1")
-println(str(Mul(Add(N(5),x(2,1)),Add(x(1,1),N(1),x(1,2)))) == "(5+2x)*(x+1+x^2)")
-println(str(Mul(Add(x(2,1),N(5)),Add(x(1,2),x(1,1),N(1)))) == "(2x+5)*(x^2+x+1)")
-println(xlt(Var("x",3,3), N(1)))
+val f = Mul(Add(N(5),x(2,1)),Add(x(1,2),x(1,1),N(1),x(3,3)))
+println(str(f) == "(5+2x)*(x^2+x+1+3x^3)")
+println(str(xsort(f)) == "(2x+5)*(3x^3+x^2+x+1)")
