@@ -46,17 +46,6 @@ def xlt(x: Expr, y: Expr): Boolean = (x,y) match {
   case (_, _)                             => true
 }
 
-
-def qsort(xs: List[Int]): List[Int] = {
-  if (xs.length <= 1) xs
-  else {
-    val pivot = xs(xs.length / 2)
-    qsort(xs.filter(pivot >)) ++
-    xs.filter(pivot ==) ++
-    qsort(xs.filter(pivot <))
-  }
-}
-
 def xsort(xs: Expr): Expr = xs match {
   case Add(xs@_*)  => {
     def f(xs: List[Expr]): List[Expr] = xs match {
