@@ -62,6 +62,18 @@ def xsort(xs: Expr): Expr = xs match {
   case xs  => xs
 }
 
+def flatten(xs: List[Expr]): List[Expr] = xs match {
+  case List() => List()
+  case (xs1::xs2) => flatten(xs1 :: xs2)
+  case (x::xs) => x :: flatten(xs)
+}
+
+def add(xs: List[Expr]): Expr = xs match {
+  case List() => N(0)
+  case List(xs) => xs
+  case xs => Add(xs: _*)
+}
+
 println(eval(Add(N(1),N(2))) == 1+2)
 println(eval(Add(N(2),N(3))) == 2+3)
 println(eval(Add(N(5),N(-3))) == 5-3)
