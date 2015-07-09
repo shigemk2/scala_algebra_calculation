@@ -92,21 +92,6 @@ def xsimplify(xs: Expr): Expr = xs match {
   case xs  => xs
 }
 
-// xsimplify (Add xs) = add $ f $ getxs $ xsort $ Add $ flatten xs
-//     where
-//         getxs (Add xs) = xs
-//         f []  = []
-//         f ((N     0  ):xs) = f xs
-//         f ((Var _ 0 _):xs) = f xs
-//         f [x] = [xsimplify x]
-//         f ((N a1):(N a2):zs) = f $ N (a1 + a2) : zs
-//         f ((Var "x" a1 n1):(Var "x" a2 n2):zs)
-//             | n1 == n2 = f $ (a1 + a2)`x`n1 : zs
-//         f (x:xs) = xsimplify x : f xs
-// xsimplify (Mul xs) = Mul [xsimplify x | x <- xs]
-// xsimplify x = x
-
-
 println(eval(Add(N(1),N(2))) == 1+2)
 println(eval(Add(N(2),N(3))) == 2+3)
 println(eval(Add(N(5),N(-3))) == 5-3)
