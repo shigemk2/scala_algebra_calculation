@@ -76,7 +76,7 @@ def add(xs: List[Expr]): Expr = xs match {
 
 def xsimplify(xs: Expr): Expr = xs match {
   case Add(xs@_*)  => {
-    def getxs(xs: Expr) = xs match {
+    def getxs(xs: Expr) = (xs: @unchecked) match {
       case Add(xs @_*) => xs
     }
     def f(xs: List[Expr]): List[Expr] = xs match {
