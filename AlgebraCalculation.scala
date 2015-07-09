@@ -112,3 +112,5 @@ println(str(Add(x(1,3),x(-1,2),x(-2,1),N(1))) == "x^3-x^2-2x+1")
 val f = Mul(Add(N(5),x(2,1)),Add(x(1,2),x(1,1),N(1),x(3,3)))
 println(str(f) == "(5+2x)*(x^2+x+1+3x^3)")
 println(str(xsort(f)) == "(2x+5)*(3x^3+x^2+x+1)")
+val g1 = Add(x(2,1),N(3),x(4,2),x(1,1),N(1),x(1,2))
+println(str(xsimplify(g1))) // 5x^2+3x+4
