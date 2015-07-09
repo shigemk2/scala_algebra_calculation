@@ -64,7 +64,7 @@ def xsort(xs: Expr): Expr = xs match {
 
 def flatten(xs: List[Expr]): List[Expr] = xs match {
   case List() => List()
-  case (xs1::xs2) => flatten(xs1 :: xs2)
+  case (Add(xs1)::xs2) => flatten(xs1 :: xs2)
   case (x::xs) => x :: flatten(xs)
 }
 
@@ -86,7 +86,8 @@ def xsimplify(xs: Expr): Expr = xs match {
       case (Var("x",a1,n1)::Var("x",a2,n2)::zs) if n1 == n2 => f(x(a1 + a2, n1)::zs)
       case (x::xs) => xsimplify(x)::f(xs)
     }
-    Add(f(xs.toList): _*)
+    Add(flatten(xs.toList): _*)
+    // add(f(getxs(xsort(Add(flatten(xs.toList): _*)))))
   }
   case Mul(xs@_*)  => Mul(xs.map(x => xsimplify(x)): _*)
   case xs  => xs
