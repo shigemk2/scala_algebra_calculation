@@ -84,7 +84,7 @@ def xsimplify(xs: Expr): Expr = xs match {
       case List(x) => List(xsimplify(x))
       case (N(a1)::N(a2)::zs) => f(N(a1 + a2)::zs)
       case (Var("x",a1,n1)::Var("x",a2,n2)::zs) if n1 == n2 => f(x(a1 + a2, n1)::zs)
-      case (x::xs) => xsimplify(x::f(xs): _*)
+      case (x::xs) => xsimplify(x)::f(xs)
     }
     Add(f(xs.toList): _*)
   }
