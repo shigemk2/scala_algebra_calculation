@@ -88,9 +88,7 @@ def xsimplify(xs: Expr): Expr = xs match {
       case (Var("x",a1,n1)::Var("x",a2,n2)::zs) if n1 == n2 => f(x(a1 + a2, n1)::zs)
       case (x::xs) => xsimplify(x)::f(xs)
     }
-    println(f(getxs(xsort(Add(flatten(xs.toList): _*))).toList))
-    println(getxs(Add(flatten(xs.toList): _*)))
-    add(f(getxs(Add(flatten(xs.toList): _*)).toList))
+    add(f(getxs(xsort(Add(flatten(xs.toList): _*))).toList))
   }
   case Mul(xs@_*)  => Mul(xs.map(x => xsimplify(x)): _*)
   case xs  => xs
@@ -117,4 +115,4 @@ val f = Mul(Add(N(5),x(2,1)),Add(x(1,2),x(1,1),N(1),x(3,3)))
 println(str(f) == "(5+2x)*(x^2+x+1+3x^3)")
 println(str(xsort(f)) == "(2x+5)*(3x^3+x^2+x+1)")
 val g1 = Add(x(2,1),N(3),x(4,2),x(1,1),N(1),x(1,2))
-println(str(xsimplify(g1))) // 5x^2+3x+4
+println(str(xsimplify(g1)) ==  "5x^2+3x+4")
