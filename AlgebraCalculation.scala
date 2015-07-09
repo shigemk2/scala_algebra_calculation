@@ -88,7 +88,7 @@ def xsimplify(xs: Expr): Expr = xs match {
       case (Var("x",a1,n1)::Var("x",a2,n2)::zs) if n1 == n2 => f(x(a1 + a2, n1)::zs)
       case (x::xs) => xsimplify(x)::f(xs)
     }
-    println(getxs(xsort(Add(flatten(xs.toList): _*))))
+    println(f(getxs(xsort(Add(flatten(xs.toList): _*))).toList))
     println(getxs(Add(flatten(xs.toList): _*)))
     add(f(getxs(Add(flatten(xs.toList): _*)).toList))
   }
