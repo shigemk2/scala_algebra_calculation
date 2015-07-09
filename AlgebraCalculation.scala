@@ -76,7 +76,7 @@ def add(xs: List[Expr]): Expr = xs match {
 
 def xsimplify(xs: Expr): Expr = xs match {
   case Add(xs@_*)  => {
-    def getxs(xs: Add) = xs match {
+    def getxs(xs: Expr) = xs match {
       case Add(xs @_*) => xs
     }
     def f(xs: List[Expr]): List[Expr] = xs match {
@@ -88,7 +88,8 @@ def xsimplify(xs: Expr): Expr = xs match {
       case (Var("x",a1,n1)::Var("x",a2,n2)::zs) if n1 == n2 => f(x(a1 + a2, n1)::zs)
       case (x::xs) => xsimplify(x)::f(xs)
     }
-    println(add(f(getxs(Add(flatten(xs.toList): _*)).toList)))
+    println(getxs(xsort(Add(flatten(xs.toList): _*))))
+    println(getxs(Add(flatten(xs.toList): _*)))
     add(f(getxs(Add(flatten(xs.toList): _*)).toList))
   }
   case Mul(xs@_*)  => Mul(xs.map(x => xsimplify(x)): _*)
