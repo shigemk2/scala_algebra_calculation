@@ -64,7 +64,7 @@ def xsort(xs: Expr): Expr = xs match {
 
 def flatten(xs: List[Expr]): List[Expr] = xs match {
   case List() => List()
-  case (Add(xs1)::xs2) => flatten(xs1 :: xs2)
+  case (Add(xs1@_*)::xs2) => flatten(xs1.toList ++ xs2)
   case (x::xs) => x :: flatten(xs)
 }
 
@@ -117,3 +117,6 @@ println(str(xsort(f)) == "(2x+5)*(3x^3+x^2+x+1)")
 val g1 = Add(x(2,1),N(3),x(4,2),x(1,1),N(1),x(1,2))
 println(str(g1) ==  "2x+3+4x^2+x+1+x^2")
 println(str(xsimplify(g1)) ==  "5x^2+3x+4")
+val g2 = Mul(Add(x(1,1),N(0),x(2,1)),Add(x(1,2),Add(N(1),x(2,2)),N(2)))
+println(str(g2) == "(x+0+2x)*(x^2+(1+2x^2)+2)")
+println(str(xsimplify(g2)) == "3x*(3x^2+3)")
