@@ -94,6 +94,16 @@ def xsimplify(xs: Expr): Expr = xs match {
   case xs  => xs
 }
 
+def multiply(xs1: Expr, xs2: Expr) = (xs1, xs2) match {
+  case (N(n1), N(n2)) => N(n1 * n2)
+  case (N(n1), Var(x, a2, n2)) => Var(x, (n1 * a2), n2)
+  case (Var(x, a1, n1), N(n2)) => Var(x, (a1 * n2), n1)
+  case (Var(x, a1, n1), Var(y, a2, n2)) if x == y => Var(x, (a1 * a2), (n1 + n2))
+  case (Var(x, a1, n1), Var(y, a2, n2)) if x != y => Mul(Var(x, a1, n1), Var(y, a2, n2))
+  case (Mul(xs1@_*), Mul(xs2@_*)) => Mul(xs1.toList ++ xs2.toList:_*)
+  case (Mul(xs1@_*), xs2) => Mul(xs1.toList :+ xs2:_*)
+  case (xs1, Mul(xs2@_*)) => Mul(xs1 :: xs2.toList:_*)
+}
 println(eval(Add(N(1),N(2))) == 1+2)
 println(eval(Add(N(2),N(3))) == 2+3)
 println(eval(Add(N(5),N(-3))) == 5-3)
