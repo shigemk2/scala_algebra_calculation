@@ -73,6 +73,19 @@ xsimplify (Add xs) = add $ f $ getxs $ xsort $ Add $ flatten xs
 xsimplify (Mul xs) = Mul [xsimplify x | x <- xs]
 xsimplify x = x
 
+multiply (N n1)        (N n2)        = N $ n1 * n2
+multiply (N n1)        (Var x a2 n2) = Var x (n1 * a2) n2
+multiply (Var x a1 n1) (N n2)        = Var x (a1 * n2) n1
+multiply (Var x a1 n1) (Var y a2 n2)
+    | x == y    = Var x (a1 * a2) (n1 + n2)
+    | otherwise = Mul [Var x a1 n1, Var y a2 n2]
+multiply (Add xs1) (Add xs2) = Add [multiply x1 x2 | x1 <- xs1, x2 <- xs2]
+multiply (Add xs1) x2        = Add [multiply x1 x2 | x1 <- xs1           ]
+multiply x1        (Add xs2) = Add [multiply x1 x2 |            x2 <- xs2]
+multiply (Mul xs1) (Mul xs2) = Mul (xs1 ++ xs2)
+multiply (Mul xs1) x2        = Mul (xs1 ++ [x2])
+multiply x1        (Mul xs2) = Mul (x1:xs2)
+
 tests = TestList
     [ "eval 1" ~: eval (Add[N 1,N  1 ]) ~?= 1+1
     , "eval 2" ~: eval (Add[N 2,N  3 ]) ~?= 2+3
@@ -112,6 +125,33 @@ tests = TestList
         let f = Add[1`x`1,N 1,0`x`2,1`x`1,N 1,(-2)`x`1,N(-2)]
         in (str f, str $ xsimplify f)
         ~?= ("x+1+0x^2+x+1-2x-2", "0")
+    , "multiply 1" ~:
+        let f1 = N 2
+            f2 = N 3
+        in (str f1, str f2, str $ f1 `multiply` f2)
+        ~?= ("2", "3", "6")
+    , "multiply 2" ~:
+        let f1 = N 2
+            f2 = 3`x`2
+        in (str f1, str f2, str $ f1 `multiply` f2)
+        ~?= ("2", "3x^2", "6x^2")
+    , "multiply 3" ~:
+        let f1 = 2`x`3
+            f2 = 3`x`4
+        in (str f1, str f2, str $ f1 `multiply` f2)
+        ~?= ("2x^3", "3x^4", "6x^7")
+    , "multiply 4" ~:
+        let f1 = N 2
+            f2 = Add[1`x`1,2`x`2,N 3]
+        in (str f1, str f2, str $ f1 `multiply` f2)
+        ~?= ("2", "x+2x^2+3", "2x+4x^2+6")
+    , "multiply 5" ~:
+        let f1 = Add[1`x`1,N 1]
+            f2 = Add[2`x`1,N 3]
+            f3 = f1 `multiply` f2
+            f4 = xsimplify f3
+        in (str f1, str f2, str f3, str f4)
+        ~?= ("x+1", "2x+3", "2x^2+3x+2x+3", "2x^2+5x+3")
     ]
 
 main = do
