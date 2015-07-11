@@ -86,6 +86,25 @@ multiply (Mul xs1) (Mul xs2) = Mul (xs1 ++ xs2)
 multiply (Mul xs1) x2        = Mul (xs1 ++ [x2])
 multiply x1        (Mul xs2) = Mul (x1:xs2)
 
+mul []  = N 1
+mul [x] = x
+mul xs  = Mul xs
+
+expand (Mul xs) = mul $ f xs
+    where
+        f []  = []
+        f [x] = [expand x]
+        f (x:y:xs) = multiply x y : xs
+expand (Add xs) = add $ f xs
+    where
+        f []  = []
+        f (x:xs)
+            | x /= x'   = x':xs
+            | otherwise = x : f xs
+            where
+                x' = expand x
+expand x = x
+
 tests = TestList
     [ "eval 1" ~: eval (Add[N 1,N  1 ]) ~?= 1+1
     , "eval 2" ~: eval (Add[N 2,N  3 ]) ~?= 2+3
@@ -152,6 +171,14 @@ tests = TestList
             f4 = xsimplify f3
         in (str f1, str f2, str f3, str f4)
         ~?= ("x+1", "2x+3", "2x^2+3x+2x+3", "2x^2+5x+3")
+    , "expand 1" ~:
+        let f = Mul[Add[1`x`1,N 1],Add[1`x`1,N 2],Add[1`x`1,N 3]]
+        in (str f, str $ expand f)
+        ~?= ("(x+1)*(x+2)*(x+3)", "(x^2+2x+x+2)*(x+3)")
+    , "expand 2" ~:
+        let f = Add[N 1,Mul[Add[1`x`1,N 1],Add[1`x`1,N 2],Add[1`x`1,N 3]]]
+        in (str f, str $ expand f)
+        ~?= ("1+(x+1)*(x+2)*(x+3)", "1+(x^2+2x+x+2)*(x+3)")
     ]
 
 main = do
