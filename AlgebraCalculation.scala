@@ -94,12 +94,15 @@ def xsimplify(xs: Expr): Expr = xs match {
   case xs  => xs
 }
 
-def multiply(xs1: Expr, xs2: Expr) = (xs1, xs2) match {
+def multiply(xs1: Expr, xs2: Expr): Expr = (xs1, xs2) match {
   case (N(n1), N(n2)) => N(n1 * n2)
   case (N(n1), Var(x, a2, n2)) => Var(x, (n1 * a2), n2)
   case (Var(x, a1, n1), N(n2)) => Var(x, (a1 * n2), n1)
   case (Var(x, a1, n1), Var(y, a2, n2)) if x == y => Var(x, (a1 * a2), (n1 + n2))
   case (Var(x, a1, n1), Var(y, a2, n2)) if x != y => Mul(Var(x, a1, n1), Var(y, a2, n2))
+  case (Add(xs1@_*), Add(xs2@_*)) => Add((for(x1 <- xs1; x2 <- xs2) yield multiply(x1, x2)): _*)
+  case (Add(xs1@_*), x2) => Add((for(x1 <- xs1) yield multiply(x1, x2)): _*)
+  case (x1, Add(xs2@_*)) => Add((for(x2 <- xs2) yield multiply(x1, x2)): _*)
   case (Mul(xs1@_*), Mul(xs2@_*)) => Mul(xs1.toList ++ xs2.toList:_*)
   case (Mul(xs1@_*), xs2) => Mul(xs1.toList :+ xs2:_*)
   case (xs1, Mul(xs2@_*)) => Mul(xs1 :: xs2.toList:_*)
@@ -141,10 +144,10 @@ println(str(x(3,2)) == "3x^2")
 println(str(multiply(N(2), x(3,2))) ==  "6x^2")
 println(str(x(2,3)) == "2x^3")
 println(str(x(3,4)) == "3x^4")
-println(str(multiply(N(2), x(3,2))) ==  "6x^7")
-println(str(N(2)) == "2x^3")
+println(str(multiply(x(2,3), x(3,4))) ==  "6x^7")
+println(str(N(2)) == "2")
 println(str(Add(x(1,1),x(2,2),N(3))) == "x+2x^2+3")
-println(str(multiply(N(2), x(3,2))) ==  "2x+4x^2+6")
+println(str(multiply(N(2), Add(x(1,1),x(2,2),N(3)))) ==  "2x+4x^2+6")
 println(str(Add(x(1,1),N(1))) == "x+1")
 println(str(Add(x(2,1),N(3))) == "2x+3")
 println(str(multiply(Add(x(1,1),N(1)),Add(x(2,1),N(3)))) == "2x^2+3x+2x+3")
