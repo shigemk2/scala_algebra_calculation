@@ -107,6 +107,33 @@ def multiply(xs1: Expr, xs2: Expr): Expr = (xs1, xs2) match {
   case (Mul(xs1@_*), xs2) => Mul(xs1.toList :+ xs2:_*)
   case (xs1, Mul(xs2@_*)) => Mul(xs1 :: xs2.toList:_*)
 }
+
+def mul(xs: List[Expr]): Expr = xs match {
+  case List() => N(1)
+  case List(xs) => xs
+  case xs => Mul(xs: _*)
+}
+
+def expand(xs: Expr): Expr = xs match {
+  case Mul(xs@_*)  => {
+    def f(xs: List[Expr]): List[Expr] = xs match {
+      case List() => List()
+      case List(x) => List(expand(x))
+      case (x::y::xs) => multiply(x,y) :: xs
+    }
+    Mul(f(xs.toList): _*)
+  }
+  case Add(xs@_*)  => {
+    def f(xs: List[Expr]): List[Expr] = xs match {
+      case List() => List()
+      case (x::xs) if x != expand(x) => expand(x) :: xs
+      case (x::xs) if x == expand(x) => x :: f(xs)
+    }
+    Add(f(xs.toList): _*)
+  }
+  case xs => xs
+}
+
 println(eval(Add(N(1),N(2))) == 1+2)
 println(eval(Add(N(2),N(3))) == 2+3)
 println(eval(Add(N(5),N(-3))) == 5-3)
