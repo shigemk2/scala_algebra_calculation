@@ -105,6 +105,12 @@ expand (Add xs) = add $ f xs
                 x' = expand x
 expand x = x
 
+expandAll x
+    | x /= x'   = expandAll x'
+    | otherwise = x
+    where
+        x' = expand x
+
 tests = TestList
     [ "eval 1" ~: eval (Add[N 1,N  1 ]) ~?= 1+1
     , "eval 2" ~: eval (Add[N 2,N  3 ]) ~?= 2+3
@@ -179,6 +185,15 @@ tests = TestList
         let f = Add[N 1,Mul[Add[1`x`1,N 1],Add[1`x`1,N 2],Add[1`x`1,N 3]]]
         in (str f, str $ expand f)
         ~?= ("1+(x+1)*(x+2)*(x+3)", "1+(x^2+2x+x+2)*(x+3)")
+    , "expandAll" ~:
+        let f1 = Add[N 1,Mul[Add[1`x`1,N 1],Add[1`x`1,N 2],Add[1`x`1,N 3]]]
+            f2 = expandAll f1
+            f3 = xsimplify f2
+        in (str f1, str f2, str f3)
+        ~?= ( "1+(x+1)*(x+2)*(x+3)"
+            , "1+(x^3+3x^2+2x^2+6x+x^2+3x+2x+6)"
+            , "x^3+6x^2+11x+7"
+            )
     ]
 
 main = do
