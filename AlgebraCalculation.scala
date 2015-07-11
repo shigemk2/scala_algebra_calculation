@@ -134,6 +134,11 @@ def expand(xs: Expr): Expr = xs match {
   case xs => xs
 }
 
+def expandAll(x: Expr): Expr = x match {
+  case x if x != expand(x) => expandAll(expand(x))
+  case x if x == expand(x) => x
+}
+
 println(eval(Add(N(1),N(2))) == 1+2)
 println(eval(Add(N(2),N(3))) == 2+3)
 println(eval(Add(N(5),N(-3))) == 5-3)
@@ -184,5 +189,6 @@ println(str(expand(Mul(Add(x(1,1),N(1)),Add(x(1,1),N(2)),Add(x(1,1),N(3))))) == 
 println(str(Add(N(1),Mul(Add(x(1,1),N(1)),Add(x(1,1),N(2)),Add(x(1,1),N(3))))) == "1+(x+1)*(x+2)*(x+3)")
 println(str(expand((Add(N(1),Mul(Add(x(1,1),N(1)),Add(x(1,1),N(2)),Add(x(1,1),N(3))))))) == "1+(x^2+2x+x+2)*(x+3)")
 println(str(Add(N(1),Mul(Add(x(1,1),N(1)),Add(x(1,1),N(2)),Add(x(1,1),N(3))))) == "1+(x+1)*(x+2)*(x+3)")
-println(str(expandAll((Add(N(1),Mul(Add(x(1,1),N(1)),Add(x(1,1),N(2)),Add(x(1,1),N(3))))))) == "1+(x^3+3x^2+2x^2+6x+x^2+3x+2x+6)")
+println(str(expandAll(Add(N(1),Mul(Add(x(1,1),N(1)),Add(x(1,1),N(2)),Add(x(1,1),N(3)))))) == "1+(x^3+3x^2+2x^2+6x+x^2+3x+2x+6)")
 println(str(xsimplify(expandAll((Add(N(1),Mul(Add(x(1,1),N(1)),Add(x(1,1),N(2)),Add(x(1,1),N(3)))))))) == "x^3+6x^2+11x+7")
+println(str(xsimplify(Add(N(1),Add(x(1,3),x(3,2),x(2,2),x(6,1),x(1,2),x(3,1),x(2,1),N(6))))) == "x^3+6x^2+11x+7")
