@@ -111,6 +111,12 @@ expandAll x
     where
         x' = expand x
 
+differentiate x (Add ys) = Add [differentiate x y | y <- ys]
+differentiate x (Var y a 1) | x == y = N a
+differentiate x (Var y a n) | x == y = Var x (a * n) (n - 1)
+differentiate _ (Var _ _ _) = N 0
+differentiate _ (N _)       = N 0
+
 tests = TestList
     [ "eval 1" ~: eval (Add[N 1,N  1 ]) ~?= 1+1
     , "eval 2" ~: eval (Add[N 2,N  3 ]) ~?= 2+3
@@ -194,6 +200,10 @@ tests = TestList
             , "1+(x^3+3x^2+2x^2+6x+x^2+3x+2x+6)"
             , "x^3+6x^2+11x+7"
             )
+    , "differentiate" ~:
+        let f = Add[1`x`3,1`x`2,1`x`1,N 1]
+        in (str f, str $ differentiate "x" f)
+        ~?= ("x^3+x^2+x+1", "3x^2+2x+1+0")
     ]
 
 main = do
