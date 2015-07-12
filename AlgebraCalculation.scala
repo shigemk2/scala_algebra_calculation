@@ -8,8 +8,8 @@ case class Rational(n: Int, d: Int) extends Expr {
     else gcd(y % x, x)
   }
   private val g = gcd(n, d)
-  val numer: Int = n/g
-  val denom: Int = d/g
+  val numerator: Int = n/g
+  val denominator: Int = d/g
   def +(that: Rational) =
     new Rational(numer * that.denom + that.numer * denom,
     denom * that.denom)
