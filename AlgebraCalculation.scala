@@ -143,9 +143,9 @@ def expandAll(x: Expr): Expr = {
 
 def differentiate(str: String, e: Expr): Expr = (str, e) match {
   case (x, Add(ys@_*)) => Add((for(y <- ys) yield differentiate(x, y)): _*)
-  case (x, Var(y,a,1)) if x == y => N(a)
-  case (x, Var(y,a,n)) if x == y => Var(x,a*n,n-1)
-  case (_, Var(_,_,_)) => N(0)
+  case (x, Var(y, a, 1)) if x == y => N(a)
+  case (x, Var(y, a, n)) if x == y => Var(x, a * n,n - 1)
+  case (_, Var(_, _, _)) => N(0)
   case (_, N(_)) => N(0)
 }
 
