@@ -36,6 +36,11 @@ def eval(e: Expr): Int = (e: @unchecked) match {
   case Mul(xs@_*) => xs.map(eval).product
 }
 
+def rstr(x: Rational, s: String): String = x match {
+  case x if x.denominator == 1 => x.numerator
+  case x if ! x.denominator == 1 => x.numerator ++ "/" ++ x.denominator ++ s
+}
+
 def str(e: Expr): String = e match {
   case N(x)             => x.toString
   case Var(x, 1, 1)     => x
