@@ -232,3 +232,8 @@ test("expandAll", {
    ("1+(x+1)*(x+2)*(x+3)",
     "1+(x^3+3x^2+2x^2+6x+x^2+3x+2x+6)",
     "x^3+6x^2+11x+7")) })
+test("differentiate", {
+  val f = Add(x(1,3),x(1,2),x(1,1),N(1))
+  ((str(f), str(differentiate("x",f))),
+    ("x^3+x^2+x+1",
+      "3x^2+2x+1+0")) })
