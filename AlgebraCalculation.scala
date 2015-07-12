@@ -10,8 +10,8 @@ def x(a: Int, n: Int): Var = {
 
 def eval(e: Expr): Int = (e: @unchecked) match {
   case N(x) => x
-  case Add(xs@_*) => xs.map(x => eval(x)).sum
-  case Mul(xs@_*) => xs.map(x => eval(x)).product
+  case Add(xs@_*) => xs.map(eval).sum
+  case Mul(xs@_*) => xs.map(eval).product
 }
 
 def str(e: Expr): String = e match {
@@ -51,14 +51,14 @@ def xsort(e: Expr): Expr = e match {
     def f(list: List[Expr]): List[Expr] = list match {
       case List() => List()
       case x::xs => {
-        val xs1 = for (x1 <- xs if ! xlt(x1, x)) yield xsort(x1)
-        val xs2 = for (x2 <- xs if xlt(x2, x)) yield xsort(x2)
+        val xs1 = for (x1 <- xs if !xlt(x1, x)) yield xsort(x1)
+        val xs2 = for (x2 <- xs if  xlt(x2, x)) yield xsort(x2)
         f(xs1) ++ List(x) ++ f(xs2)
       }
     }
     Add(f(xs.toList): _*)
   }
-  case Mul(xs@_*) => Mul(xs.map(x => xsort(x)): _*)
+  case Mul(xs@_*) => Mul(xs.map(xsort): _*)
   case _ => e
 }
 
@@ -142,11 +142,10 @@ def expandAll(x: Expr): Expr = {
 }
 
 def test[A](tag: String, t: (A, A)) = {
-  print(tag + ": ")
   if (t._1 == t._2) {
-    println("OK")
+    println("[OK] " + tag)
   } else {
-    println("NG")
+    println("[NG] " + tag)
     println("  value   : " + t._1)
     println("  expected: " + t._2)
   }
