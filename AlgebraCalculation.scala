@@ -121,7 +121,7 @@ def expand(xs: Expr): Expr = xs match {
       case List(x) => List(expand(x))
       case (x::y::xs) => multiply(x,y) :: xs
     }
-    Mul(f(xs.toList): _*)
+    mul(f(xs.toList))
   }
   case Add(xs@_*)  => {
     def f(xs: List[Expr]): List[Expr] = xs match {
@@ -129,7 +129,7 @@ def expand(xs: Expr): Expr = xs match {
       case (x::xs) if x != expand(x) => expand(x) :: xs
       case (x::xs) if x == expand(x) => x :: f(xs)
     }
-    Add(f(xs.toList): _*)
+    add(f(xs.toList))
   }
   case xs => xs
 }
