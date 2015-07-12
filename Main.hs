@@ -2,9 +2,10 @@ module Main where
 
 import Test.HUnit
 import System.IO
+import Data.Ratio
 
-data Expr = N Int
-          | Var String Int Int
+data Expr = N Rational
+          | Var String Rational Rational
           | Add [Expr]
           | Mul [Expr]
           deriving (Show, Eq)
@@ -19,11 +20,18 @@ isneg (N n)       | n < 0 = True
 isneg (Var _ a _) | a < 0 = True
 isneg _                   = False
 
-str (N x) = show x
+rstr x s
+    | d == 1    = show n
+    | otherwise = show n ++ "/" ++ show d ++ s
+    where
+        n = numerator x
+        d = denominator x
+
+str (N x) = rstr x ""
 str (Var x  1 1) = x
 str (Var x(-1)1) = "-" ++ x
-str (Var x  a 1) = show a ++ x
-str (Var x  a n) = str (Var x a 1) ++ "^" ++ show n
+str (Var x  a 1) = rstr a " " ++ x
+str (Var x  a n) = str (Var x a 1) ++ "^" ++ rstr n ""
 str (Add [])       = ""
 str (Add [Add xs]) = "(" ++ str (Add xs) ++ ")"
 str (Add [x])      = str x
@@ -117,6 +125,12 @@ differentiate x (Var y a n) | x == y = Var x (a * n) (n - 1)
 differentiate _ (Var _ _ _) = N 0
 differentiate _ (N _)       = N 0
 
+integrate x (Add ys) = Add $ [integrate x y | y <- ys] ++ [Var "C" 1 1]
+integrate x (Var y a n)
+    | x == y    = Var x (a / (n + 1)) (n + 1)
+    | otherwise = Mul [Var y a n, Var x 1 1]
+integrate x (N n) = Var x n 1
+
 tests = TestList
     [ "eval 1" ~: eval (Add[N 1,N  1 ]) ~?= 1+1
     , "eval 2" ~: eval (Add[N 2,N  3 ]) ~?= 2+3
@@ -204,6 +218,10 @@ tests = TestList
         let f = Add[1`x`3,1`x`2,1`x`1,N 1]
         in (str f, str $ differentiate "x" f)
         ~?= ("x^3+x^2+x+1", "3x^2+2x+1+0")
+    , "integrate" ~:
+        let f = Add[1`x`2,2`x`1,N 1]
+        in (str f, str $ integrate "x" f)
+        ~?= ("x^2+2x+1", "1/3 x^3+x^2+x+C")
     ]
 
 main = do
