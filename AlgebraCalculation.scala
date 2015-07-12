@@ -1,5 +1,27 @@
 sealed trait Expr
 case class N(n: Int) extends Expr
+case class Rational(n: Int, d: Int) extends Expr {
+  private def gcd(x: Int, y: Int): Int = {
+    if (x == 0) y
+    else if (x < 0) gcd(-x, y)
+    else if (y < 0) -gcd(x, -y)
+    else gcd(y % x, x)
+  }
+  private val g = gcd(n, d)
+  val numer: Int = n/g
+  val denom: Int = d/g
+  def +(that: Rational) =
+    new Rational(numer * that.denom + that.numer * denom,
+    denom * that.denom)
+  def -(that: Rational) =
+  new Rational(numer * that.denom - that.numer * denom,
+    denom * that.denom)
+  def *(that: Rational) =
+    new Rational(numer * that.numer, denom * that.denom)
+  def /(that: Rational) =
+    new Rational(numer * that.denom, denom * that.numer)
+  override def toString(): String = s"${n} % ${d}"
+}
 case class Var(x: String, a: Int, n: Int) extends Expr
 case class Add(n: Expr*) extends Expr
 case class Mul(n: Expr*) extends Expr
