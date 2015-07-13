@@ -11,15 +11,15 @@ case class Rational(n: Int, d: Int) extends Expr {
   val numerator: Int = n/g
   val denominator: Int = d/g
   def +(that: Rational) =
-    new Rational(numer * that.denom + that.numer * denom,
-    denom * that.denom)
+    new Rational(numerator * that.denominator + that.numerator * denominator,
+    denominator * that.denominator)
   def -(that: Rational) =
-  new Rational(numer * that.denom - that.numer * denom,
-    denom * that.denom)
+  new Rational(numerator * that.denominator - that.numerator * denominator,
+    denominator * that.denominator)
   def *(that: Rational) =
-    new Rational(numer * that.numer, denom * that.denom)
+    new Rational(numerator * that.numerator, denominator * that.denominator)
   def /(that: Rational) =
-    new Rational(numer * that.denom, denom * that.numer)
+    new Rational(numerator * that.denominator, denominator * that.numerator)
   override def toString(): String = s"${n} % ${d}"
 }
 case class Var(x: String, a: Rational, n: Rational) extends Expr
