@@ -1,6 +1,6 @@
 sealed trait Expr
 case class N(n: Rational) extends Expr
-case class Rational(n: Int, d: Int) extends Expr {
+case class Rational(n: Int = 1, d: Int = 1) extends Expr {
   private def gcd(x: Int, y: Int): Int = {
     if (x == 0) y
     else if (x < 0) gcd(-x, y)
