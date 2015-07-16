@@ -56,7 +56,7 @@ def eval(e: Expr): R = (e: @unchecked) match {
 }
 
 def rstr(r: R, s: String): String = r.denom match {
-  case 1 => r.toString
+  case 1 => r.numer.toString
   case _ => r + s
 }
 
