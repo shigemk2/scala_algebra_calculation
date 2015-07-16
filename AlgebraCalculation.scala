@@ -290,9 +290,8 @@ test("differentiate", {
   val f = Add(x(1,3),x(1,2),x(1,1),N(1))
   (str(f), str(differentiate("x",f)))
 },("x^3+x^2+x+1", "3x^2+2x+1+0"))
-/*
+
 test("integrate", {
   val f = Add(x(1,2),x(2,1),N(1))
   (str(f), str(integrate("x",f)))
 },("x^2+2x+1", "1/3 x^3+x^2+x+C"))
-*/
