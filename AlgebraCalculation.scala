@@ -195,6 +195,13 @@ def differentiate(str: String, e: Expr): Expr = (str, e) match {
   case (_, N(_)) => N(0)
 }
 
+def integrate(str: String, e: Expr): Expr = (str, e) match {
+  case (x, Add(ys@_*)) => Add((for(y <- ys) yield integrate(x, y)) ++ List(Var("C", R(1,1), R(1,1))): _*)
+  case (x, Var(y, a, n)) if x == y => Var(x, a / (n + 1), n + 1)
+  case (x, Var(y, a, n)) if x != y => Mul(Var(y, a, n), Var(x, R(1,1), R(1,1)))
+  case (x, N(n)) => Var(x, n, R(1,1))
+}
+
 def test(tag: String, v: Any, e: Any) = {
   if (v == e) {
     println("[OK] " + tag)
