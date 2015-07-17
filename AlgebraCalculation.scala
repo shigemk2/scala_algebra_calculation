@@ -56,7 +56,7 @@ def eval(e: Expr): R = (e: @unchecked) match {
 }
 
 def rstr(r: R, s: String): String = r.denom match {
-  case 1 => r.toString
+  case 1 => r.numer.toString
   case _ => r + s
 }
 
@@ -195,6 +195,13 @@ def differentiate(str: String, e: Expr): Expr = (str, e) match {
   case (_, N(_)) => N(0)
 }
 
+def integrate(str: String, e: Expr): Expr = (str, e) match {
+  case (x, Add(ys@_*)) => Add((for(y <- ys) yield integrate(x, y)) ++ List(Var("C", R(1,1), R(1,1))): _*)
+  case (x, Var(y, a, n)) if x == y => Var(x, a / (n + 1), n + 1)
+  case (x, Var(y, a, n)) if x != y => Mul(Var(y, a, n), Var(x, R(1,1), R(1,1)))
+  case (x, N(n)) => Var(x, n, R(1,1))
+}
+
 def test(tag: String, v: Any, e: Any) = {
   if (v == e) {
     println("[OK] " + tag)
@@ -290,9 +297,8 @@ test("differentiate", {
   val f = Add(x(1,3),x(1,2),x(1,1),N(1))
   (str(f), str(differentiate("x",f)))
 },("x^3+x^2+x+1", "3x^2+2x+1+0"))
-/*
+
 test("integrate", {
   val f = Add(x(1,2),x(2,1),N(1))
   (str(f), str(integrate("x",f)))
 },("x^2+2x+1", "1/3 x^3+x^2+x+C"))
-*/
