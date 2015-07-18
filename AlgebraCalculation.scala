@@ -3,34 +3,39 @@ import scala.language.implicitConversions
 // R is derived from Rational with some fixes.
 // https://sites.google.com/site/scalajp/home/documentation/scala-by-example/chapter6
 
-case class R(n: Int, d: Int) extends Ordered[R] {
-  private def gcd(x: Int, y: Int): Int = {
-    if (x == 0) y
-    else if (x < 0)  gcd(-x,  y)
-    else if (y < 0) -gcd( x, -y)
-    else gcd(y % x, x)
+case class R(numer: Int, denom: Int) extends Ordered[R] {
+  def reduce: R = {
+    def gcd(x: Int, y: Int): Int = {
+      if (x == 0) y
+      else if (x < 0)  gcd(-x,  y)
+      else if (y < 0) -gcd( x, -y)
+      else gcd(y % x, x)
+    }
+    val g = gcd(numer, denom)
+    R(numer / g, denom / g)
   }
-  private val g = gcd(n, d)
-  val numer: Int = n/g
-  val denom: Int = d/g
+
   def +(that: R) = R(
     numer * that.denom + that.numer * denom,
-    denom * that.denom)
+    denom * that.denom).reduce
   def -(that: R) = R(
     numer * that.denom - that.numer * denom,
-    denom * that.denom)
+    denom * that.denom).reduce
   def *(that: R) = R(
     numer * that.numer,
-    denom * that.denom)
+    denom * that.denom).reduce
   def /(that: R) = R(
     numer * that.denom,
-    denom * that.numer)
+    denom * that.numer).reduce
+
   def compare(that: R): Int = (this - that).numer
-  override def equals(other: Any) = other match {
+
+  override def equals(other: Any): Boolean = other match {
     case that: R => numer == that.numer && denom == that.denom
     case that: Int => numer == that && denom == 1
     case _ => false
   }
+
   override def toString: String = denom match {
     case 1 => numer.toString
     case _ => numer + "/" + denom
@@ -136,22 +141,22 @@ def xsimplify(e: Expr): Expr = e match {
     }
     add(f(getxs(xsort(Add(flatten(xs.toList): _*))).toList))
   }
-  case Mul(xs@_*) => Mul(xs.map(xsimplify(_)): _*)
+  case Mul(xs@_*) => Mul(xs.map(xsimplify): _*)
   case _ => e
 }
 
 def multiply(e1: Expr, e2: Expr): Expr = (e1, e2) match {
   case (N(n1), N(n2)) => N(n1 * n2)
-  case (N(n1), Var(x, a2, n2)) => Var(x, (n1 * a2), n2)
-  case (Var(x, a1, n1), N(n2)) => Var(x, (a1 * n2), n1)
-  case (Var(x, a1, n1), Var(y, a2, n2)) if x == y => Var(x, (a1 * a2), (n1 + n2))
+  case (N(n1), Var(x, a2, n2)) => Var(x, n1 * a2, n2)
+  case (Var(x, a1, n1), N(n2)) => Var(x, a1 * n2, n1)
+  case (Var(x, a1, n1), Var(y, a2, n2)) if x == y => Var(x, a1 * a2, n1 + n2)
   case (Var(x, a1, n1), Var(y, a2, n2)) if x != y => Mul(Var(x, a1, n1), Var(y, a2, n2))
   case (Add(xs1@_*), Add(xs2@_*)) => Add((for(x1 <- xs1; x2 <- xs2) yield multiply(x1, x2)): _*)
   case (Add(xs1@_*), x2) => Add((for(x1 <- xs1) yield multiply(x1, x2)): _*)
   case (x1, Add(xs2@_*)) => Add((for(x2 <- xs2) yield multiply(x1, x2)): _*)
   case (Mul(xs1@_*), Mul(xs2@_*)) => Mul(xs1.toList ++ xs2.toList: _*)
-  case (Mul(xs1@_*), xs2) => Mul(xs1.toList :+ xs2: _*)
-  case (xs1, Mul(xs2@_*)) => Mul(xs1 :: xs2.toList: _*)
+  case (Mul(xs1@_*), x2) => Mul(xs1.toList :+ x2: _*)
+  case (x1, Mul(xs2@_*)) => Mul(x1 :: xs2.toList: _*)
 }
 
 def mul(list: List[Expr]): Expr = list match {
@@ -187,19 +192,19 @@ def expandAll(x: Expr): Expr = {
   if (x != x2) expandAll(x2) else x
 }
 
-def differentiate(str: String, e: Expr): Expr = (str, e) match {
-  case (x, Add(ys@_*)) => Add((for(y <- ys) yield differentiate(x, y)): _*)
-  case (x, Var(y, a, R(1,1))) if x == y => N(a)
-  case (x, Var(y, a, n)) if x == y => Var(x, a * n,n - 1)
-  case (_, Var(_, _, _)) => N(0)
-  case (_, N(_)) => N(0)
+def differentiate(x: String, e: Expr): Expr = e match {
+  case Add(ys@_*) => Add((for(y <- ys) yield differentiate(x, y)): _*)
+  case Var(y, a, R(1,1)) if x == y => N(a)
+  case Var(y, a, n) if x == y => Var(x, a * n, n - 1)
+  case Var(_, _, _) => N(0)
+  case N(_) => N(0)
 }
 
-def integrate(str: String, e: Expr): Expr = (str, e) match {
-  case (x, Add(ys@_*)) => Add((for(y <- ys) yield integrate(x, y)) ++ List(Var("C", R(1,1), R(1,1))): _*)
-  case (x, Var(y, a, n)) if x == y => Var(x, a / (n + 1), n + 1)
-  case (x, Var(y, a, n)) if x != y => Mul(Var(y, a, n), Var(x, R(1,1), R(1,1)))
-  case (x, N(n)) => Var(x, n, R(1,1))
+def integrate(x: String, e: Expr): Expr = e match {
+  case Add(ys@_*) => Add((for(y <- ys) yield integrate(x, y)) ++ List(Var("C", 1, 1)): _*)
+  case Var(y, a, n) if x == y => Var(x, a / (n + 1), n + 1)
+  case Var(y, a, n) if x != y => Mul(Var(y, a, n), Var(x, 1, 1))
+  case N(n) => Var(x, n, 1)
 }
 
 def test(tag: String, v: Any, e: Any) = {
@@ -297,7 +302,6 @@ test("differentiate", {
   val f = Add(x(1,3),x(1,2),x(1,1),N(1))
   (str(f), str(differentiate("x",f)))
 },("x^3+x^2+x+1", "3x^2+2x+1+0"))
-
 test("integrate", {
   val f = Add(x(1,2),x(2,1),N(1))
   (str(f), str(integrate("x",f)))
